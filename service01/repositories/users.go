@@ -50,6 +50,31 @@ func (r *UserRepository) DeleteUser(id uint64) error {
 	return nil
 }
 
+func (r *UserRepository) UpdateUser(data models.User) error {
+	var newUserData models.User
+
+	currentUserData, err := r.getUserFullData(data.Id)
+	if err != nil || currentUserData.Id == 0 {
+		return errors.New("usuário não está cadastrado no banco")
+	}
+
+	newUserData = data
+	if newUserData.Name == "" {
+		newUserData.Name = currentUserData.Name
+	}
+	if newUserData.Email == "" {
+		newUserData.Email = currentUserData.Email
+	}
+	if newUserData.Password == "" {
+		newUserData.Password = currentUserData.Password
+	}
+	result := r.db.Save(&newUserData)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (r *UserRepository) SearchByEmail(email string) (models.User, error) {
 	var user models.User
 
@@ -59,4 +84,10 @@ func (r *UserRepository) SearchByEmail(email string) (models.User, error) {
 	}
 
 	return user, nil
+}
+
+func (r *UserRepository) getUserFullData(id uint64) (models.User, error) {
+	var user models.User
+	result := r.db.First(&user, id)
+	return user, result.Error
 }

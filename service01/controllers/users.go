@@ -80,7 +80,6 @@ func PostUser(c *gin.Context) {
 }
 
 func DeleteUser(c *gin.Context) {
-
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Resposta": err.Error()})
@@ -106,6 +105,40 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, fmt.Sprintf("Usuario de id %v deletado", id))
+}
+
+func UpdateUser(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Resposta": err.Error()})
+		return
+	}
+
+	if err := validateToken(c, id); err != nil {
+		c.JSON(http.StatusUnauthorized, fmt.Sprintf("Erro: %v", err.Error()))
+		return
+	}
+
+	var newUserData models.User
+	newUserData.Id = id
+	if err := c.ShouldBindJSON(&newUserData); err != nil {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Erro: %v", err.Error()))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Resposta": err.Error()})
+		return
+	}
+
+	repo := repositories.NewUserRepository(db)
+	err = repo.UpdateUser(newUserData)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Resposta": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, fmt.Sprintf("Usuário de id %v atualizado", id))
 }
 
 func validateToken(c *gin.Context, id uint64) error {
