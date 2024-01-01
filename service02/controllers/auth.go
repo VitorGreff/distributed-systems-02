@@ -36,6 +36,7 @@ func ValidateToken(c *gin.Context, userID uint64) error {
 	tokenString := extractToken(c)
 	token, err := jwt.Parse(tokenString, returnKey)
 	if err != nil {
+		fmt.Println(err)
 		return errors.New("erro ao dar parse no token")
 	}
 

@@ -22,7 +22,7 @@ func main() {
 			c.JSON(http.StatusInternalServerError, gin.H{"Resposta": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, token)
+		c.String(http.StatusOK, token)
 	})
 
 	router.POST("/usuarios/validar-token", func(c *gin.Context) {
