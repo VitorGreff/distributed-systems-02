@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"trab02/models"
 
 	"gorm.io/gorm"
@@ -34,4 +35,28 @@ func (r *UserRepository) PostUser(newUser models.User) (uint64, error) {
 		return 0, result.Error
 	}
 	return newUser.Id, nil
+}
+
+func (r *UserRepository) DeleteUser(id uint64) error {
+	user, err := r.GetUser(id)
+	if err != nil || user.Id == 0 {
+		return errors.New("usuário não está cadastrado no banco")
+	}
+
+	result := r.db.Delete(&models.User{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (r *UserRepository) SearchByEmail(email string) (models.User, error) {
+	var user models.User
+
+	r.db.Raw("select id, password from users where email = ?", email).Scan(&user)
+	if user.Id == 0 {
+		return models.User{}, errors.New("usuário não está cadastrado no banco")
+	}
+
+	return user, nil
 }
