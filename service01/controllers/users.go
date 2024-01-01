@@ -45,7 +45,7 @@ func GetUser(c *gin.Context) {
 	repo := repositories.NewUserRepository(db)
 	user, err := repo.GetUser(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Resposta": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"Resposta": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, user)
