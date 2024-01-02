@@ -10,7 +10,6 @@ import (
 
 func main() {
 	router := gin.Default()
-
 	router.GET("/usuarios/token", func(c *gin.Context) {
 		userID, err := strconv.ParseUint(c.Query("userID"), 10, 64)
 		if err != nil {
@@ -24,7 +23,6 @@ func main() {
 		}
 		c.String(http.StatusOK, token)
 	})
-
 	router.POST("/usuarios/validar-token", func(c *gin.Context) {
 		userID, err := strconv.ParseUint(c.Query("userID"), 10, 64)
 		if err != nil {
@@ -38,6 +36,5 @@ func main() {
 		}
 		c.JSON(http.StatusAccepted, gin.H{"Resposta": "Token válido"})
 	})
-
 	router.Run(":8081")
 }
