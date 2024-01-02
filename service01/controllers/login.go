@@ -31,7 +31,7 @@ func Login(c *gin.Context) {
 	repo := repositories.NewUserRepository(db)
 	userQuery, err = repo.SearchByEmail(body.Email)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Resposta": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"Resposta": err.Error()})
 		return
 	}
 
