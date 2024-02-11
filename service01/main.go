@@ -8,6 +8,8 @@ import (
 
 func main() {
 	router := gin.Default()
+	// rabbitmq.PublishMessage("teste")
+	// rabbitmq.ConsumeMessage()
 	router.GET("/usuarios", controllers.GetUsers)
 	router.GET("/usuarios/:id", controllers.GetUser)
 	router.POST("/usuarios", controllers.PostUser)
@@ -15,4 +17,5 @@ func main() {
 	router.DELETE("/usuarios/:id", controllers.DeleteUser)
 	router.PUT("/usuarios/:id", controllers.UpdateUser)
 	router.Run(":8080")
+
 }

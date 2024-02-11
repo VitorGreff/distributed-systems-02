@@ -86,7 +86,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	// validating token
+	// validating the token
 	if err := validateToken(c, id); err != nil {
 		c.JSON(http.StatusUnauthorized, fmt.Sprintf("Erro: %v", err.Error()))
 		return
