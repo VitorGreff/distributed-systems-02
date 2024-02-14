@@ -1,19 +1,17 @@
-package controllers
+package tokenPkg
 
 import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 )
 
 var jwtSecret = []byte("chaveAbsurdamenteSecreta")
 
-func GenerateToken(c *gin.Context, userID uint64) (string, error) {
+func GenerateToken(userID uint64) (string, error) {
 
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
@@ -32,15 +30,14 @@ func GenerateToken(c *gin.Context, userID uint64) (string, error) {
 	return signedToken, nil
 }
 
-func ValidateToken(c *gin.Context, userID uint64) error {
-	tokenString := extractToken(c)
+func ValidateToken(tokenString string, userID uint64) error {
 	token, err := jwt.Parse(tokenString, returnKey)
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("erro ao dar parse no token")
 	}
 
-	tokenID, err := ExtrairUsuarioID(c)
+	tokenID, err := ExtrairUsuarioID(tokenString)
 	if err != nil {
 		return err
 	}
@@ -56,8 +53,7 @@ func ValidateToken(c *gin.Context, userID uint64) error {
 	return errors.New("token inválido")
 }
 
-func ExtrairUsuarioID(c *gin.Context) (uint64, error) {
-	tokenString := extractToken(c)
+func ExtrairUsuarioID(tokenString string) (uint64, error) {
 	token, erro := jwt.Parse(tokenString, returnKey)
 	if erro != nil {
 		return 0, erro
@@ -72,16 +68,6 @@ func ExtrairUsuarioID(c *gin.Context) (uint64, error) {
 	}
 
 	return 0, errors.New("token inválido")
-}
-
-func extractToken(c *gin.Context) string {
-	token := c.GetHeader("Authorization")
-
-	// bearer <token>
-	if len(strings.Split(token, " ")) == 2 {
-		return strings.Split(token, " ")[1]
-	}
-	return ""
 }
 
 func returnKey(token *jwt.Token) (interface{}, error) {

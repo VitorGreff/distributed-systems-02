@@ -8,6 +8,7 @@ import (
 	"strings"
 	"trab02/database"
 	"trab02/models"
+	"trab02/rabbitMQ"
 	"trab02/service01/repositories"
 
 	"github.com/gin-gonic/gin"
@@ -86,7 +87,6 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	// validating the token
 	if err := validateToken(c, id); err != nil {
 		c.JSON(http.StatusUnauthorized, fmt.Sprintf("Erro: %v", err.Error()))
 		return
@@ -141,27 +141,15 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Usuário de id %v atualizado", id))
 }
 
-func validateToken(c *gin.Context, id uint64) error {
+func validateToken(c *gin.Context, userID uint64) error {
 	header := strings.Split(c.GetHeader("Authorization"), " ")
 	if len(header) < 2 {
 		return errors.New("token em branco")
 	}
 	bodyToken := header[1]
 
-	request, err := http.NewRequest("POST", fmt.Sprintf("http://localhost:8081/usuarios/validar-token?userID=%d", id), nil)
+	err := rabbitMQ.SendAndConsumeToken(bodyToken, userID)
 	if err != nil {
-		return errors.New("erro ao criar a requisição")
-	}
-
-	request.Header.Set("Authorization", "Bearer "+bodyToken)
-	client := &http.Client{}
-	resp, err := client.Do(request)
-	if err != nil {
-		return errors.New("erro ao executar a requisição")
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusUnauthorized {
 		return errors.New("requisição não autorizada")
 	}
 	return nil
