@@ -12,7 +12,6 @@ import (
 var jwtSecret = []byte("chaveAbsurdamenteSecreta")
 
 func GenerateToken(userID uint64) (string, error) {
-
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	// claim for correct auth

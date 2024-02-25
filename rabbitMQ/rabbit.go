@@ -47,7 +47,7 @@ func SendAndConsumeToken(token string, userID uint64) error {
 
 	message := token + "," + strconv.FormatUint(userID, 10)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err = ch.PublishWithContext(
 		ctx,
@@ -168,7 +168,7 @@ func ReceiveAndValidateToken() {
 }
 
 func sendValidationResponse(ch *amqp.Channel, result error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	response := "valid"
@@ -190,7 +190,7 @@ func sendValidationResponse(ch *amqp.Channel, result error) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Response sent: ", result)
+	log.Println("Response sent:", result)
 }
 
 func SendTokenGenerationRequest(userID uint64) (string, error) {
@@ -218,7 +218,7 @@ func SendTokenGenerationRequest(userID uint64) (string, error) {
 		return "", err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err = ch.PublishWithContext(
 		ctx,
@@ -262,7 +262,6 @@ func SendTokenGenerationRequest(userID uint64) (string, error) {
 
 	var token string
 	for d := range msgs {
-		log.Println("Response", string(d.Body))
 		token = string(d.Body)
 		break
 	}
@@ -320,7 +319,7 @@ func ReceiveAndGenerateToken() {
 				sendToken(ch, "token_queue", "invalid")
 				continue
 			}
-			log.Printf("Received a message: %s", d.Body)
+			log.Printf("Received a message from id: %s", d.Body)
 			token, err := tokenPkg.GenerateToken(userID)
 			if err != nil {
 				sendToken(ch, "token_queue", "invalid")
@@ -333,7 +332,7 @@ func ReceiveAndGenerateToken() {
 }
 
 func sendToken(ch *amqp.Channel, queueName string, token string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	err := ch.PublishWithContext(
@@ -350,5 +349,5 @@ func sendToken(ch *amqp.Channel, queueName string, token string) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Token sent: ", token)
+	log.Println("Token sent:", token)
 }
